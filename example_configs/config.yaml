@@ -1,0 +1,81 @@
+# Example Configuration for EXR to PNG Converter
+# ================================================
+
+# Tone Mapping Settings
+# ---------------------
+# Method: 'aces' (recommended), 'reinhard', 'exposure', 'hable'
+tone_mapping: aces
+
+# Exposure adjustment in EV stops (-10 to +10)
+# Positive values brighten, negative values darken
+exposure: 0.0
+
+# Gamma correction (typically 2.2 for sRGB)
+gamma: 2.2
+
+# White point for Reinhard tone mapping
+white_point: 2.0
+
+# Output Settings
+# ---------------
+# Target resolution (null = keep original size)
+# Recommended: 512, 1024, or 2048 for matcaps
+output_size: 1024
+
+# PNG compression quality (0-100, higher = better quality)
+quality: 95
+
+# Enable PNG optimization (slower but smaller files)
+optimize_png: true
+
+# Color Space
+# -----------
+# Color space: 'srgb' or 'linear'
+color_space: srgb
+
+# Apply linear to sRGB conversion
+apply_color_transform: true
+
+# Matcap Optimization
+# -------------------
+# Enable matcap-specific optimizations
+matcap_mode: true
+
+# Cropping method: 'center', 'top', 'bottom', 'left', 'right'
+crop_method: center
+
+# Resampling method: 'lanczos' (best), 'bicubic', 'bilinear'
+resample_method: lanczos
+
+# Ensure power-of-2 dimensions for GPU optimization
+ensure_power_of_2: true
+
+# Alpha Channel
+# -------------
+# Preserve alpha channel if present
+preserve_alpha: true
+
+# Enhancement Filters
+# -------------------
+# Sharpening amount (0.0 = none, 1.0 = strong)
+sharpen: 0.0
+
+# Saturation multiplier (1.0 = original, <1.0 = desaturate, >1.0 = saturate)
+saturation: 1.0
+
+# Brightness multiplier (1.0 = original)
+brightness: 1.0
+
+# Contrast multiplier (1.0 = original)
+contrast: 1.0
+
+# Batch Processing
+# ----------------
+# Search subdirectories recursively
+recursive: false
+
+# Overwrite existing output files
+overwrite: false
+
+# Number of parallel workers (1-32)
+workers: 4

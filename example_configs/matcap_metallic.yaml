@@ -1,0 +1,20 @@
+# Metallic Matcap Configuration
+# Optimized for metallic materials with strong highlights
+
+tone_mapping: aces
+exposure: 0.5
+gamma: 2.2
+output_size: 1024
+quality: 95
+matcap_mode: true
+crop_method: center
+resample_method: lanczos
+ensure_power_of_2: true
+preserve_alpha: true
+sharpen: 0.1
+saturation: 1.1
+brightness: 1.0
+contrast: 1.0
+recursive: false
+overwrite: false
+workers: 4

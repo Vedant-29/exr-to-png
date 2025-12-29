@@ -1,0 +1,20 @@
+# Stylized Matcap Configuration
+# Lower contrast for cartoon/stylized rendering
+
+tone_mapping: exposure
+exposure: -0.5
+gamma: 1.8
+output_size: 512
+quality: 85
+matcap_mode: true
+crop_method: center
+resample_method: lanczos
+ensure_power_of_2: true
+preserve_alpha: true
+sharpen: 0.0
+saturation: 1.3
+brightness: 1.0
+contrast: 1.1
+recursive: false
+overwrite: false
+workers: 4
