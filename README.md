@@ -1,600 +1,214 @@
-# EXR to PNG Converter for Three.js Matcaps
-
-A professional-grade converter for transforming Blender EXR renders into optimized PNG matcap textures for use in Three.js applications.
-
-## 📁 Project Structure
-
-```
-exr-to-png/
-├── sample_inputs/          # 23 sample EXR matcap files (metals, ceramics, etc.)
-├── sample_outputs/         # Pre-converted PNG examples at 2048x2048
-├── example_configs/        # YAML configuration presets
-│   ├── config.yaml         # Default configuration
-│   ├── matcap_metallic.yaml
-│   ├── matcap_glass.yaml
-│   └── matcap_stylized.yaml
-├── src/                    # Source code
-├── cli.py                  # Command-line interface
-├── requirements.txt        # Python dependencies
-└── README.md              # This file
-```
-
-### 🎨 Sample Files Included
-
-**Input EXR Files** (`sample_inputs/`):
-- 23 high-quality matcap samples covering various materials
-- Metal: shiny, anisotropic, carpaint, lead
-- Ceramic: dark, lightbulb
-- Clay: brown, muddy, studio
-- Organic: skin, pearl, jade, resin
-- Stylized: toon
-- Utility: reflection checks, rim lights, normals
-
-**Output PNG Files** (`sample_outputs/`):
-- Pre-converted examples at 2048x2048 resolution
-- ACES Filmic tone mapping applied
-- Quality 100, sRGB color space
-- Ready to use in Three.js applications
-
-## Features
-
-- **Industry-Standard Tone Mapping**: ACES Filmic, Reinhard, Hable (Uncharted 2), and Exposure-based
-- **HDR to LDR Conversion**: Proper handling of high dynamic range imagery
-- **Matcap Optimization**: Automatic cropping, resizing, and power-of-2 sizing for Three.js
-- **Color Space Management**: Linear to sRGB conversion with proper gamma handling
-- **Batch Processing**: Process multiple files with parallel execution support
-- **Configurable Presets**: Ready-made configurations for different material types
-- **Enhancement Filters**: Optional sharpening, saturation, brightness, and contrast adjustments
-- **Professional CLI**: User-friendly command-line interface with progress tracking
-
-## Installation
-
-### Prerequisites
-
-- Python 3.8 or higher
-- pip package manager
-
-### Install Dependencies
-
-```bash
-# Create virtual environment (recommended)
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### Dependencies
-
-- `numpy` - Array operations and image processing
-- `Pillow` - Image I/O and basic operations
-- `OpenEXR` - EXR file format support
-- `scipy` - Enhancement filters (sharpening)
-- `click` - CLI framework
-- `tqdm` - Progress bars
-- `PyYAML` - Configuration file support
-- `colorama` - Colored terminal output
-
-## Quick Start
-
-### Try the Samples First!
-
-The project includes 23 sample EXR files and their pre-converted PNG outputs:
-
-```bash
-# View sample inputs
-ls sample_inputs/
-
-# View sample outputs (ready-to-use PNG matcaps)
-ls sample_outputs/
-```
-
-Use the sample outputs directly in your Three.js projects, or convert the inputs yourself with custom settings!
-
-### Basic Conversion
-
-Convert a single EXR file to PNG:
-
-```bash
-python cli.py convert input.exr output.png
-```
-
-### Batch Conversion
-
-Convert all EXR files in a directory:
-
-```bash
-python cli.py convert renders/ output/ --recursive
-```
-
-### Try Converting the Samples
-
-Re-convert the included samples with your own settings:
-
-```bash
-# Convert all samples with default settings
-python cli.py convert sample_inputs/ my_output/ --preset matcap-metallic
-
-# Convert with custom high-quality settings
-python cli.py convert sample_inputs/ my_output/ \
-  --tone-mapping aces \
-  --size 2048 \
-  --quality 100 \
-  --parallel
-```
-
-### Using Presets
-
-Use a preset configuration optimized for specific material types:
-
-```bash
-python cli.py convert input.exr output.png --preset matcap-metallic
-```
-
-Example with sample files:
-
-```bash
-# Convert metal samples with metallic preset
-python cli.py convert sample_inputs/metal_shiny.exr output.png --preset matcap-metallic
-
-# Convert ceramic samples with different preset
-python cli.py convert sample_inputs/ceramic_lightbulb.exr output.png --preset matcap-ceramic
-```
-
-### Custom Settings
-
-Fine-tune conversion parameters:
-
-```bash
-python cli.py convert input.exr output.png \
-  --tone-mapping aces \
-  --exposure 1.5 \
-  --size 1024 \
-  --quality 95
-```
-
-## Available Presets
-
-View all presets:
-
-```bash
-python cli.py presets
-```
-
-### Preset Descriptions
-
-- **blender-accurate**: Exact 1:1 Blender match, passthrough mode, max quality (2048px) - **Recommended**
-- **matcap-metallic**: Optimized for metallic materials (1024px, passthrough)
-- **matcap-matte**: Optimized for matte/diffuse materials (512px, passthrough)
-- **matcap-glass**: High-res with alpha for transparent materials (2048px, passthrough)
-- **matcap-stylized**: Stylized rendering with enhanced saturation (512px, passthrough)
-- **matcap-ceramic**: Balanced for ceramic and smooth materials (1024px, passthrough)
-- **high-quality**: Maximum quality settings (2048px, lossless, passthrough)
-- **fast**: Fast processing with lower quality (512px, passthrough)
-
-**All presets now use `passthrough` tone mapping for perfect Blender accuracy!**
-
-## Command Reference
-
-### Convert Command
-
-```bash
-python cli.py convert [OPTIONS] INPUT_PATH OUTPUT_PATH
-```
-
-#### Options
-
-**Preset & Configuration**:
-- `--preset, -p <name>` - Use a preset configuration
-- `--config, -c <file>` - Load configuration from YAML file
-
-**Tone Mapping**:
-- `--tone-mapping, -t <method>` - Tone mapping method: `aces`, `reinhard`, `exposure`, `hable`
-- `--exposure, -e <value>` - Exposure adjustment in EV stops (-10 to +10)
-- `--gamma, -g <value>` - Gamma correction value (0.1 to 5.0)
-
-**Output Settings**:
-- `--size, -s <pixels>` - Output size (width/height for square matcap)
-- `--quality, -q <0-100>` - PNG compression quality
-
-**Batch Processing**:
-- `--recursive, -r` - Process subdirectories recursively
-- `--overwrite` - Overwrite existing output files
-- `--workers, -w <n>` - Number of parallel workers (default: 4)
-- `--parallel / --no-parallel` - Enable/disable parallel processing
-
-**Matcap Options**:
-- `--no-matcap` - Disable matcap-specific optimizations
-- `--no-alpha` - Remove alpha channel from output
-
-**Enhancement Filters**:
-- `--sharpen <0.0-2.0>` - Sharpening amount
-- `--saturation <0.0-3.0>` - Saturation multiplier
-- `--brightness <0.1-3.0>` - Brightness multiplier
-- `--contrast <0.1-3.0>` - Contrast multiplier
-
-**Logging**:
-- `--verbose, -v` - Enable verbose logging
-- `--quiet` - Suppress all logging except errors
-
-### Other Commands
-
-**List Presets**:
-```bash
-python cli.py presets
-```
-
-**Export Preset to YAML**:
-```bash
-python cli.py export-preset matcap-metallic config.yaml
-```
-
-**Validate Configuration**:
-```bash
-python cli.py validate-config config.yaml
-```
-
-**Display EXR Info**:
-```bash
-python cli.py info input.exr
-```
-
-## Configuration Files
-
-### YAML Configuration
-
-Example configurations are provided in `example_configs/`:
-
-- `config.yaml` - Default configuration template
-- `matcap_metallic.yaml` - Optimized for metallic materials
-- `matcap_glass.yaml` - High-res for glass/transparent materials
-- `matcap_stylized.yaml` - Stylized/cartoon rendering
-
-Use with:
-
-```bash
-python cli.py convert input.exr output.png --config example_configs/matcap_metallic.yaml
-```
-
-Or create your own:
-
-```yaml
-# my_config.yaml
-tone_mapping: aces
-exposure: 1.0
-gamma: 2.2
-output_size: 1024
-quality: 95
-matcap_mode: true
-crop_method: center
-resample_method: lanczos
-ensure_power_of_2: true
-preserve_alpha: true
-sharpen: 0.1
-saturation: 1.05
-brightness: 1.0
-contrast: 1.0
-```
-
-## Tone Mapping Methods
-
-### ⭐ Passthrough (Recommended for Blender Matcaps)
-
-**Pass-through mode preserves the exact appearance from Blender**.
-
-Blender's matcap EXR files are **already tone-mapped** (LDR stored as EXR). The passthrough mode simply preserves this data with proper gamma correction, ensuring your PNG output looks **exactly** like it does in Blender.
-
-- **Best for**: Blender matcap EXR files (recommended!)
-- **Characteristics**: 1:1 visual match with Blender, no additional tone curve
-- **Usage**: `--tone-mapping passthrough` (now the default)
-- **When to use**: Always, unless you have true HDR EXR files
-
-```bash
-# Perfect Blender match
-python cli.py convert matcap.exr matcap.png --tone-mapping passthrough
-```
-
-### ACES Filmic
-
-Industry-standard tone mapping for **true HDR** content. Only use if your EXR has values > 1.0.
-
-- **Best for**: True HDR EXR files with bright highlights
-- **Characteristics**: Natural highlight rolloff, cinematic look
-- **Usage**: `--tone-mapping aces`
-- **When to use**: HDR renders with value range > 1.0
-
-### Reinhard
-
-Balanced tone mapping with configurable white point. For HDR content.
-
-- **Best for**: HDR images needing highlight compression
-- **Usage**: `--tone-mapping reinhard`
-
-### Hable (Uncharted 2)
-
-Filmic tone mapping from game development.
-
-- **Best for**: HDR game assets, stylized looks
-- **Usage**: `--tone-mapping hable`
-
-### Exposure
-
-Simple exposure adjustment.
-
-- **Best for**: Quick brightness tweaks
-- **Usage**: `--tone-mapping exposure --exposure 0.5`
-
-### Important Note
-
-**For Blender matcaps: Always use `passthrough`!**
-
-Other tone mapping methods will darken and alter your matcaps because they apply tone curves designed for HDR → LDR conversion, but Blender matcaps are already in LDR format.
-
-## Three.js Integration
-
-### Using Generated Matcaps
-
-```javascript
-import * as THREE from 'three';
-
-// Load matcap texture
-const textureLoader = new THREE.TextureLoader();
-const matcapTexture = textureLoader.load('matcap.png');
-
-// Apply to material
-const material = new THREE.MeshMatcapMaterial({
-  matcap: matcapTexture
-});
-
-// Use with mesh
-const geometry = new THREE.SphereGeometry(1, 64, 64);
-const mesh = new THREE.Mesh(geometry, material);
-scene.add(mesh);
-```
-
-### Matcap Requirements
-
-- **Square Aspect Ratio**: Automatically handled by converter
-- **Power-of-2 Dimensions**: Enabled by default for optimal GPU performance
-- **sRGB Color Space**: Applied automatically
-- **Recommended Sizes**: 512px (fast), 1024px (standard), 2048px (high-quality)
-
-## Examples
-
-### Example 1: Metallic Material
-
-```bash
-python cli.py convert metal_render.exr metal_matcap.png \
-  --preset matcap-metallic \
-  --exposure 0.5 \
-  --sharpen 0.15
-```
-
-### Example 2: Glass Material with Alpha
-
-```bash
-python cli.py convert glass_render.exr glass_matcap.png \
-  --preset matcap-glass \
-  --exposure 1.0
-```
-
-### Example 3: Batch Convert Samples with Custom Settings
-
-```bash
-python cli.py convert sample_inputs/ my_matcaps/ \
-  --tone-mapping aces \
-  --size 1024 \
-  --quality 95 \
-  --workers 8 \
-  --parallel
-```
-
-### Example 4: Compare Different Tone Mapping Methods
-
-```bash
-# Try different tone mapping on the same sample
-python cli.py convert sample_inputs/metal_shiny.exr metal_aces.png --tone-mapping aces
-python cli.py convert sample_inputs/metal_shiny.exr metal_reinhard.png --tone-mapping reinhard
-python cli.py convert sample_inputs/metal_shiny.exr metal_hable.png --tone-mapping hable
-```
-
-### Example 5: Stylized Cartoon Material
-
-```bash
-python cli.py convert sample_inputs/toon.exr toon_custom.png \
-  --preset matcap-stylized \
-  --saturation 1.5 \
-  --contrast 1.2
-```
-
-## Workflow with Blender
-
-### 1. Render Matcap in Blender
-
-```python
-# Blender Python script for matcap rendering
-import bpy
-
-# Setup matcap sphere
-bpy.ops.mesh.primitive_uv_sphere_add(radius=1, location=(0, 0, 0))
-sphere = bpy.context.active_object
-
-# Setup camera (orthographic, centered on sphere)
-bpy.ops.object.camera_add(location=(0, -3, 0), rotation=(1.5708, 0, 0))
-camera = bpy.context.active_object
-camera.data.type = 'ORTHO'
-camera.data.ortho_scale = 2.2
-
-# Setup lighting (three-point, HDRI, etc.)
-# ... your lighting setup ...
-
-# Render settings
-scene = bpy.context.scene
-scene.render.image_settings.file_format = 'OPEN_EXR'
-scene.render.image_settings.color_mode = 'RGBA'
-scene.render.image_settings.color_depth = '32'
-scene.render.resolution_x = 2048
-scene.render.resolution_y = 2048
-
-# Render
-bpy.ops.render.render(write_still=True)
-```
-
-### 2. Convert to Matcap
-
-```bash
-python cli.py convert blender_output.exr final_matcap.png \
-  --preset matcap-metallic \
-  --size 1024
-```
-
-### 3. Use in Three.js
-
-See "Three.js Integration" section above.
-
-## Advanced Usage
-
-### Custom Tone Mapping Pipeline
-
-```python
-from src import EXRConverter, ConversionConfig
-
-# Create custom config
-config = ConversionConfig(
-    tone_mapping='aces',
-    exposure=1.5,
-    gamma=2.2,
-    output_size=2048,
-    quality=98,
-    sharpen=0.2,
-    saturation=1.1
-)
-
-# Convert
-converter = EXRConverter(config)
-stats = converter.convert('input.exr', 'output.png')
-
-print(f"Converted: {stats['output_size']}")
-```
-
-### Parallel Batch Processing
-
-```python
-from src import EXRConverter, ConversionConfig, find_exr_files
-
-config = ConversionConfig(workers=8)
-converter = EXRConverter(config)
-
-exr_files = find_exr_files('renders/', recursive=True)
-summary = converter.convert_batch_parallel(exr_files, 'output/')
-
-print(f"Processed {summary['successful']} files")
-```
-
-## Troubleshooting
-
-### OpenEXR Installation Issues
-
-If you encounter issues installing OpenEXR:
-
-**On macOS**:
-```bash
-brew install openexr
-pip install OpenEXR
-```
-
-**On Ubuntu/Debian**:
-```bash
-sudo apt-get install libopenexr-dev
-pip install OpenEXR
-```
-
-**On Windows**:
-Download pre-built wheels from https://www.lfd.uci.edu/~gohlke/pythonlibs/
-
-### Memory Issues with Large Files
-
-For very large EXR files (>4K), reduce the number of parallel workers:
-
-```bash
-python cli.py convert large.exr output.png --workers 1
-```
-
-### Performance Optimization
-
-For maximum performance:
-
-1. Use parallel processing: `--parallel`
-2. Increase workers: `--workers 8`
-3. Use faster tone mapping: `--tone-mapping exposure`
-4. Reduce output size: `--size 512`
-5. Disable filters: No `--sharpen`, `--saturation`, etc.
-
-## Technical Details
-
-### Tone Mapping Algorithms
-
-**ACES Filmic (Narkowicz 2015)**:
-```
-f(x) = (x * (a * x + b)) / (x * (c * x + d) + e)
-```
-
-**Reinhard**:
-```
-f(x) = x * (1 + x / W²) / (1 + x)
-```
-
-**Exposure + Gamma**:
-```
-f(x) = (x * 2^EV)^(1/γ)
-```
-
-### Color Space Conversion
-
-Linear to sRGB:
-```
-sRGB = { x * 12.92,                  if x ≤ 0.0031308
-       { 1.055 * x^(1/2.4) - 0.055,  otherwise
-```
-
-### Performance Characteristics
-
-- Single 1K image: ~1-2 seconds
-- Batch processing: Linear scaling with workers
-- Memory usage: ~3x input file size
-- Parallel efficiency: ~80-90% on multi-core systems
-
-## License
-
-This project is provided as-is for educational and commercial use.
-
-## Contributing
-
-Contributions are welcome! Please ensure:
-
-1. Code follows existing style
-2. All tests pass
-3. Documentation is updated
-4. Commit messages are descriptive
-
-## Changelog
-
-### Version 1.0.0
-
-- Initial release
-- Support for ACES, Reinhard, Hable, and Exposure tone mapping
-- Matcap-specific optimizations
-- Batch processing with parallel execution
-- Configurable presets
-- Comprehensive CLI interface
-- Enhancement filters
-- Full documentation
-
-## Support
-
-For issues, questions, or contributions, please use the GitHub issue tracker.
+# exr-to-png
+
+A CLI that turns Blender EXR matcap renders into Three.js-ready PNG
+textures. Owns the full HDR-to-LDR pipeline — load the float EXR, apply
+a tone-mapping curve, crop and resize to a square matcap, gamma-correct
+to sRGB, compress, and write the PNG. Batchable, recursive, parallel.
+
+## Table of contents
+
+1. [What this builds](#what-this-builds)
+2. [Pipeline](#pipeline)
+3. [Key design decisions](#key-design-decisions)
+4. [Setup](#setup)
+5. [Usage](#usage)
+6. [Presets](#presets)
+7. [Repository tour](#repository-tour)
 
 ---
 
-**Made for converting Blender EXR renders to Three.js matcaps with professional quality.**
+## What this builds
+
+A single `exr-to-png` command that converts one EXR or a whole folder
+of EXRs into matcap PNGs. Four properties distinguish it from a
+two-line `imageio` script:
+
+- **Six tone-mapping curves.** Passthrough (for EXRs already
+  tone-mapped in Blender), ACES Filmic, Reinhard, exposure-only,
+  Hable, and a Filmic curve approximating Blender's own. Picking the
+  right curve is the difference between a matcap that looks correct
+  and one that looks washed out.
+- **Matcap-specific output stage.** Square center-crop, configurable
+  power-of-two resize (256–2048), optional sharpen / saturation /
+  brightness / contrast trims, and a strict gamma 2.2 → sRGB
+  conversion so the PNG matches what Three.js's `MeshMatcapMaterial`
+  expects.
+- **YAML presets.** Four named presets (`blender-accurate`,
+  `matcap-metallic`, `matcap-glass`, `matcap-stylized`) plus a `--config`
+  flag for user YAML overrides. Re-running a known-good preset is one
+  flag, not 12.
+- **Batch with parallelism.** Point it at a directory; it walks
+  recursively, dispatches a worker per EXR (configurable `--workers`),
+  and skips files whose PNG already exists unless `--overwrite` is
+  set.
+
+23 sample EXR inputs (metals, ceramics, glass, jade, pearl, normal-map
+debug spheres) and their pre-rendered 2048² PNGs ship in `sample_inputs/`
+and `sample_outputs/` for quick verification.
+
+## Pipeline
+
+```
+   .exr file
+       │
+       ▼
+  ┌──────────────┐  OpenEXR + numpy → float32 (H,W,C) HDR array
+  │  load_exr    │
+  └──────┬───────┘
+         │
+         ▼
+  ┌──────────────┐  one of: passthrough | aces | reinhard
+  │ tone_mapping │           exposure | hable | filmic
+  └──────┬───────┘  + exposure EV adjust + white-point
+         │
+         ▼
+  ┌──────────────────┐  center-crop → resize to N×N
+  │ matcap_optimizer │  + optional sharpen / saturation /
+  └────────┬─────────┘    brightness / contrast filters
+           │
+           ▼
+  ┌──────────────┐  linear → sRGB (gamma 2.2)
+  │  gamma corr  │
+  └──────┬───────┘
+         │
+         ▼
+  ┌──────────────┐  Pillow PNG encode + optimize
+  │  save_png    │  with alpha kept or stripped
+  └──────┬───────┘
+         │
+         ▼
+     .png file
+```
+
+The same pipeline runs serially for one file and in a worker pool for
+a directory.
+
+**Module responsibilities:**
+
+| Module | Responsibility |
+|---|---|
+| `src/utils.py` | `load_exr` (OpenEXR → numpy float32), `save_png`, `validate_exr_file`, `find_exr_files` recursive walker, logging setup. |
+| `src/tone_mapping.py` | Six HDR→LDR curves implemented as pure numpy functions. `apply_tone_mapping` dispatches on the config string. |
+| `src/matcap_optimizer.py` | `crop_to_square`, `resize_image`, `apply_matcap_filters` (sharpen/saturation/brightness/contrast), and matcap PNG metadata tags. |
+| `src/config.py` | `ConversionConfig` dataclass, `PRESETS` dict, YAML load/save, and `get_preset` / `list_presets` accessors. |
+| `src/converter.py` | `EXRConverter` orchestrator. Owns the full pipeline for a single file. |
+| `cli.py` | `click` entrypoint with `convert`, `presets`, and config-management subcommands. Handles batch parallelism. |
+
+## Key design decisions
+
+| Decision | Choice | Why |
+|---|---|---|
+| Default tone curve | `passthrough` | Most Blender EXRs are already tone-mapped on render. A non-passthrough default would silently double-process them and look wrong. |
+| Output color space | sRGB with gamma 2.2 | What Three.js `MeshMatcapMaterial` samples in. Storing linear PNGs would force every consumer to gamma-correct themselves. |
+| Square crop | Center, default | Matcap shaders sample a unit-circle within a square texture. Center-crop is the only crop that keeps the sphere centred. |
+| Config surface | Six independent flags + YAML preset | A flag for each visual axis lets you iterate from the CLI; YAML presets let a stable look land in version control. |
+| Batch model | Worker pool over directory walk | A single matcap takes ~1–3s; 23 of them in series is 30+s; a 4-worker pool gets it under 10s. Easy parallel gain. |
+| Overwrite default | Skip existing | Idempotent batches. Re-running on a directory only touches new EXRs unless `--overwrite` is set. |
+
+## Setup
+
+### Prerequisites
+
+- **Python 3.8+**
+- The OpenEXR Python bindings require the libopenexr C++ libs:
+  - macOS: `brew install openexr`
+  - Debian/Ubuntu: `apt-get install libopenexr-dev`
+
+### Install
+
+```bash
+git clone https://github.com/Vedant-29/exr-to-png.git
+cd exr-to-png
+pip install -r requirements.txt
+pip install -e .         # installs the `exr-to-png` command
+```
+
+Verify:
+
+```bash
+exr-to-png --version
+exr-to-png presets
+```
+
+## Usage
+
+```bash
+# Single file
+exr-to-png convert input.exr output.png
+
+# With a named preset
+exr-to-png convert input.exr output.png --preset matcap-metallic
+
+# Custom tone-map + size
+exr-to-png convert input.exr output.png \
+    --tone-mapping aces --exposure 1.5 --size 1024
+
+# Batch convert a directory, recursive, 4 workers
+exr-to-png convert renders/ output/ --recursive --workers 4
+
+# Verify against the bundled samples
+exr-to-png convert sample_inputs/ /tmp/matcaps/ --recursive \
+    --preset matcap-metallic
+```
+
+All flags:
+
+| Flag | What |
+|---|---|
+| `--preset, -p` | Use a named preset (`blender-accurate`, `matcap-metallic`, `matcap-glass`, `matcap-stylized`). |
+| `--config, -c` | Load a YAML config file (overrides preset). |
+| `--tone-mapping, -t` | `passthrough | aces | reinhard | exposure | hable | filmic`. |
+| `--exposure, -e` | EV stops (-5 to +5). |
+| `--gamma, -g` | Gamma correction (default 2.2). |
+| `--size, -s` | Output side length. |
+| `--quality, -q` | PNG compression quality 0–100. |
+| `--sharpen` | 0.0–2.0. |
+| `--saturation` | 0.0–3.0. |
+| `--brightness` | 0.1–3.0. |
+| `--contrast` | 0.1–3.0. |
+| `--recursive, -r` | Walk subdirectories. |
+| `--overwrite` | Re-encode files that already exist. |
+| `--workers, -w` | Parallel worker count. |
+| `--no-matcap` | Disable matcap-specific stage (square crop, etc.). |
+| `--no-alpha` | Strip alpha channel. |
+| `--parallel / --no-parallel` | Toggle batch parallelism. |
+| `--verbose, -v` / `--quiet` | Logging. |
+
+## Presets
+
+| Preset | Tone curve | Size | Best for |
+|---|---|---|---|
+| `blender-accurate` | passthrough | 2048 | Faithful 1:1 of the Blender render. Highest quality, no extra processing. |
+| `matcap-metallic` | passthrough + sharpen 0.1 | 1024 | Metals where micro-reflection contrast matters. |
+| `matcap-glass` | configured per YAML | 1024 | Transparent / refractive looks. |
+| `matcap-stylized` | configured per YAML | 1024 | Toon / non-photoreal matcaps where saturation is dialled up. |
+
+YAML files live in `example_configs/`. To make your own, copy one and
+pass it with `--config my_preset.yaml`.
+
+## Repository tour
+
+```
+exr-to-png/
+├── cli.py                  # click entrypoint (convert | presets | config)
+├── setup.py                # pip-installable, exposes `exr-to-png` command
+├── requirements.txt        # numpy, Pillow, OpenEXR, scipy, click, tqdm, PyYAML
+├── src/
+│   ├── __init__.py         # public re-exports
+│   ├── config.py           # ConversionConfig dataclass + named PRESETS
+│   ├── converter.py        # EXRConverter orchestrator
+│   ├── tone_mapping.py     # 6 HDR→LDR curves (passthrough, aces, ...)
+│   ├── matcap_optimizer.py # square crop, resize, sharpen, saturation
+│   └── utils.py            # load_exr, save_png, find_exr_files, logging
+├── example_configs/
+│   ├── config.yaml         # default preset
+│   ├── matcap_metallic.yaml
+│   ├── matcap_glass.yaml
+│   └── matcap_stylized.yaml
+├── sample_inputs/          # 23 example EXR matcaps (metals, ceramics, ...)
+└── sample_outputs/         # pre-rendered 2048² PNGs for verification
+```
+
+## License
+
+MIT
